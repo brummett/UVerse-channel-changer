@@ -35,9 +35,9 @@ open(STDOUT, ">>/var/log/mythtv/mythbackend.log");
 open(STDERR, ">>/var/log/mythtv/mythbackend.log");
 
 my %transmitters =
-    ( 1 => 'Changer1',
-      2 => 'Changer1',
-      3 => 'Changer2',
+    ( 1 => 'StandardChanger',
+      2 => 'StandardChanger',
+      3 => 'LongPressChanger',
     );
 my $transmit_class = $transmitters{$ir_xmit};
 unless ($transmit_class) {
@@ -123,9 +123,9 @@ sub change_channel {
 }
 
 
-package Changer1;
+package StandardChanger;
 BEGIN {
-    @Changer1::ISA = qw(ChangerBase);
+    @StandardChanger::ISA = qw(ChangerBase);
 }
 
 sub delay_between_buttons { 0.5 }
@@ -157,9 +157,9 @@ sub send_button {
     `irsend SEND_ONCE $REMOTE_NAME $button`;
 }
 
-package Changer2;
+package LongPressChanger;
 BEGIN {
-    @Changer2::ISA = qw(ChangerBase);
+    @LongPressChanger::ISA = qw(ChangerBase);
 }
 
 sub delay_between_buttons { 0.3 }

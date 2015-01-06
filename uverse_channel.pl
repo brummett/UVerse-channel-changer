@@ -25,6 +25,15 @@ END { rmdir $LOCK_DIR }
 open(STDOUT, ">>/var/log/mythtv/mythbackend.log");
 open(STDERR, ">>/var/log/mythtv/mythbackend.log");
 
+my %transmitters =
+    ( 1 => 'Changer1',
+      3 => 'Changer2',
+    );
+my $transmit_class = $transmitters{$ir_xmit};
+unless ($transmit_class) {
+    die "No transmitter class for ir $ir_xmit.  See the declaration of \%transmit_classes";
+}
+
 main::log("Using transmit class $transmit_class");
 get_lock();
 
@@ -33,8 +42,8 @@ main::log("$$: Switching to IR transmitter $ir_xmit");
 
 main::log("$$: Changing to channel $channel");
 
-Changer->wake_up;
-Changer->change_channel($channel);
+$transmit_class->wake_up;
+$transmit_class->change_channel($channel);
 
 exit(0);
 
@@ -110,6 +119,11 @@ sub change_channel {
 }
 
 
+package Changer1;
+BEGIN {
+    @Changer1::ISA = qw(Changer);
+}
+
 sub delay_between_buttons { 0.5 }
 
 sub wake_up {
@@ -139,3 +153,37 @@ sub send_button {
     `irsend SEND_ONCE $REMOTE_NAME $button`;
 }
 
+package Changer2;
+BEGIN {
+    @Changer2::ISA = qw(Changer);
+}
+
+sub delay_between_buttons { 0.3 }
+
+sub wake_up {
+    my $class = shift;
+
+    $class->send_button('ok',0.5);
+    main::do_sleep(0.5);
+    $class->send_button('ok',0.5);
+    main::do_sleep(0.5);
+    $class->send_button('exit',1);
+    main::do_sleep(0.5);
+
+}
+
+sub send_button {
+    my $class = shift;
+    my $button = shift;
+    my $delay = shift;
+
+    $delay = $class->delay_between_buttons unless defined $delay;
+
+    main::log("sending $button");
+    `irsend SEND_START $REMOTE_NAME $button`;
+    select(undef,undef,undef,$delay);
+    main::log("releasing $button");
+    `irsend SEND_STOP $REMOTE_NAME $button`;
+}
+
+1;

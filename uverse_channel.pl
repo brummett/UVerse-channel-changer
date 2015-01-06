@@ -80,7 +80,7 @@ sub get_lock {
     }
 }
 
-package Changer;
+package ChangerBase;
 
 sub send_button {
     my $class = shift;
@@ -125,7 +125,7 @@ sub change_channel {
 
 package Changer1;
 BEGIN {
-    @Changer1::ISA = qw(Changer);
+    @Changer1::ISA = qw(ChangerBase);
 }
 
 sub delay_between_buttons { 0.5 }
@@ -159,7 +159,7 @@ sub send_button {
 
 package Changer2;
 BEGIN {
-    @Changer2::ISA = qw(Changer);
+    @Changer2::ISA = qw(ChangerBase);
 }
 
 sub delay_between_buttons { 0.3 }

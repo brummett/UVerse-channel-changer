@@ -17,6 +17,13 @@ use warnings;
 my $ir_xmit = $ARGV[0];
 my $channel = $ARGV[1];
 
+# HACK - didn't want to stop mythbackend when I swapped for another
+# IR blaster.  mythbackend is stoll configured to use transmitter 3 for
+# cable box 2
+if ($ir_xmit == 3) {
+    $ir_xmit = 2;
+}
+
 my $REMOTE_NAME = 'Motorola_VIP_1200';
 our $LOCK_DIR = '/tmp/uverse_channel_change';
 END { rmdir $LOCK_DIR }
@@ -27,6 +34,7 @@ open(STDERR, ">>/var/log/mythtv/mythbackend.log");
 
 my %transmitters =
     ( 1 => 'Changer1',
+      2 => 'Changer1',
       3 => 'Changer2',
     );
 my $transmit_class = $transmitters{$ir_xmit};

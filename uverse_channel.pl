@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+use Time::HiRes qw(sleep);
+
 # usage:  uverse_channel.pl <ir_xmit_number> <channel_number>
 #
 # This is the latest iteration of trying to keep the Motorola 1200
@@ -74,16 +76,10 @@ sub get_lock {
         if ($! ne 'File exists') {
             die "Couldn't make lock directory $LOCK_DIR: $!";
         }
-        main::do_sleep(0.5);
+        sleep(0.5);
     }
 }
 
-sub do_sleep {
-    my $duration = shift;
-
-    select(undef,undef,undef, $duration);
-}
-        
 package Changer;
 
 sub send_button {
@@ -122,7 +118,7 @@ sub change_channel {
 
     foreach my $number ( @numbers ) {
         $class->send_button($number);
-        main::do_sleep($class->delay_between_buttons);
+        sleep($class->delay_between_buttons);
     }
 }
 
@@ -139,17 +135,17 @@ sub wake_up {
 
     $class->send_button('ok');
     # Wait fror it to wake up
-    main::do_sleep($class->delay_between_buttons);
-    main::do_sleep($class->delay_between_buttons);
+    sleep($class->delay_between_buttons);
+    sleep($class->delay_between_buttons);
 
     # One more time in case there's a message on screen
     $class->send_button('ok');
-    main::do_sleep($class->delay_between_buttons);
+    sleep($class->delay_between_buttons);
 
     # exit-to-tv in case it's on the video-on-demand screen
     $class->send_button('exit');
 
-    main::do_sleep($class->delay_between_buttons);
+    sleep($class->delay_between_buttons);
 }
 
 # Send a single button press to the stb
@@ -172,11 +168,11 @@ sub wake_up {
     my $class = shift;
 
     $class->send_button('ok',0.5);
-    main::do_sleep(0.5);
+    sleep(0.5);
     $class->send_button('ok',0.5);
-    main::do_sleep(0.5);
+    sleep(0.5);
     $class->send_button('exit',1);
-    main::do_sleep(0.5);
+    sleep(0.5);
 
 }
 
@@ -189,7 +185,7 @@ sub send_button {
 
     main::log("sending $button");
     `irsend SEND_START $REMOTE_NAME $button`;
-    select(undef,undef,undef,$delay);
+    sleep($delay);
     main::log("releasing $button");
     `irsend SEND_STOP $REMOTE_NAME $button`;
 }
